@@ -17,27 +17,30 @@ class DialSolver:
     def _process_input(self, s: str):
         letter, digit = self._split_letter_number(s)
 
+        self.counter_zero_passed += digit // self.amount_values
+        digit %= digit
+
         if letter == "L":
-            total_wraps = (digit - self.position + self.amount_values - 1) // self.amount_values
+            if digit >= self.position:
+                self.counter_zero_passed += 1
 
             self.position -= digit
             self.position %= self.amount_values
-
-
-            self.counter_zero_passed += total_wraps
 
             if self.position == 0:
                 self.counter_zero_landed += 1
 
         if letter == "R":
-            total_wraps = (self.position + digit) // self.amount_values
             self.position += digit
+
+            if self.position >= self.amount_values:
+                self.counter_zero_passed += 1
+
             self.position %= self.amount_values
 
             if self.position == 0:
                 self.counter_zero_landed += 1
 
-            self.counter_zero_passed += total_wraps
 
     @staticmethod
     def _split_letter_number(s: str) -> Tuple[str, int]:
