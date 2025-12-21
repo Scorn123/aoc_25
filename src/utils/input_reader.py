@@ -1,29 +1,50 @@
 from pathlib import Path
-from typing import List, Union
+from typing import  Optional
 
-INPUT_FOLDER_PATH = Path("../../inputs")
+INPUT_FOLDER_PATH = Path("../inputs")
 
 
-def read_input(day: int, part: int) -> List[str]:
+def read_input(
+        day: int,
+        *,
+        separator: Optional[str] = None,
+        split_whitespace: bool = False,
+        keep_empty: bool = True,
+) -> list[str]:
     """
-    Read the Advent of Code input for a given day and puzzle part and return a list of lines.
+    Read the Advent of Code input for a given day and return a list of strings.
 
     Parameters:
         day: day number as an int (e.g., 3)
-        part: puzzle number as an int (1 or 2)
+        separator: string separator to split on (e.g., ",", "|", "\\n\\n").
+                   If None and split_whitespace is False, split by lines.
+        split_whitespace: if True, split on arbitrary whitespace (like str.split()).
+        keep_empty: whether to keep empty strings after splitting.
 
     Returns:
-        A list of lines from the input file (newline characters removed, empty lines preserved).
+        A list of strings split according to the chosen method.
 
     Raises:
-        TypeError: if day or part are not ints.
+        TypeError: if day is not an int.
         FileNotFoundError: if the input file does not exist.
     """
-    if not isinstance(day, int) or not isinstance(part, int):
-        raise TypeError("day and part must be integers")
+    if not isinstance(day, int):
+        raise TypeError("day must be an integer")
 
-    path = INPUT_FOLDER_PATH / f"day_{day}_{part}.txt"
+    path = INPUT_FOLDER_PATH / f"day_{day}.txt"
     if not path.exists():
         raise FileNotFoundError(f"Input file not found: {path}")
 
-    return path.read_text(encoding="utf-8").splitlines()
+    text = path.read_text(encoding="utf-8")
+
+    if split_whitespace:
+        parts = text.split()
+    elif separator is not None:
+        parts = text.split(separator)
+    else:
+        parts = text.splitlines()
+
+    if not keep_empty:
+        parts = [p for p in parts if p != ""]
+
+    return parts

@@ -8,6 +8,7 @@ class DialSolver:
         self.position = start_position
         self.amount_values = max_value + 1
         self.counter_zero = 0
+        self.passed_zero = 0
 
     def process_inputs(self, inputs: list[str]):
         for s in inputs:
@@ -16,14 +17,28 @@ class DialSolver:
     def _process_input(self, s: str):
         letter, digit = self._split_letter_number(s)
 
+        started_at_zero = self.position == 0
+
         if letter == "L":
-            self.position = (self.position - digit) % self.amount_values
+            self.position -= digit
 
         if letter == "R":
-            self.position = (self.position + digit) % self.amount_values
+            self.position += digit
+            if self.position % self.amount_values == 0:
+                self.position -= self.amount_values
+
+        if self.position < 0:
+            self.position = abs(self.position)
+            if not started_at_zero:
+                self.passed_zero += 1
+
+        self.passed_zero += self.position // self.amount_values
+
+        self.position %= self.amount_values
 
         if self.position == 0:
             self.counter_zero += 1
+            self.passed_zero += 1
 
     @staticmethod
     def _split_letter_number(s: str) -> Tuple[str, int]:
@@ -43,11 +58,12 @@ class DialSolver:
 
     def print_solution(self):
         print(f"The dial point {self.counter_zero} times to zero.")
+        print(f"The dial point passed zero  {self.passed_zero} times.")
 
 
 def main():
     dial_solver = DialSolver()
-    dial_solver.process_inputs(read_input(1, 1))
+    dial_solver.process_inputs(read_input(1))
     dial_solver.print_solution()
 
 
